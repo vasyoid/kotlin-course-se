@@ -31,7 +31,7 @@ class TestSource {
         assertEquals(
             "Cycles differ!",
             cycleSimple,
-            findCycle(graphSimple, 0, 0, BooleanArray(graphSimple.size) { false })
+            findCycle(graphSimple)
         )
     }
 
@@ -40,7 +40,7 @@ class TestSource {
         assertEquals(
             "Cycles differ!",
             cycleNormal,
-            findCycle(graphNormal, 0, 0, BooleanArray(graphNormal.size) { false })
+            findCycle(graphNormal)
         )
     }
 

@@ -3,7 +3,7 @@ package ru.hse.spb
 import java.util.*
 import kotlin.collections.ArrayList
 
-fun findCycle(graph: List<List<Int>>, prevVertex: Int, curVertex: Int, used: BooleanArray): MutableList<Int> {
+private fun findCycle(graph: List<List<Int>>, prevVertex: Int, curVertex: Int, used: BooleanArray): MutableList<Int> {
     if (used[curVertex]) {
         return arrayListOf(curVertex)
     }
@@ -23,6 +23,10 @@ fun findCycle(graph: List<List<Int>>, prevVertex: Int, curVertex: Int, used: Boo
         return result
     }
     return arrayListOf()
+}
+
+fun findCycle(graph: List<List<Int>>): List<Int> {
+    return findCycle(graph, 0, 0, BooleanArray(graph.size) { false })
 }
 
 fun countDists(graph: List<List<Int>>, cycle: List<Int>): IntArray {
@@ -54,7 +58,7 @@ fun main(args: Array<String>) {
         graph[x].add(y)
         graph[y].add(x)
     }
-    for (dist in countDists(graph, findCycle(graph, 0, 0, BooleanArray(n) { false }))) {
+    for (dist in countDists(graph, findCycle(graph))) {
         print("$dist ")
     }
 }
