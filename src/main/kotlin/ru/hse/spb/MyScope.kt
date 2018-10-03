@@ -6,6 +6,7 @@ class MyScope(private val outerScope: MyScope? = null) {
 
     private val functions: HashMap<String, MyFunction> = hashMapOf()
     private val variables: HashMap<String, Int> = hashMapOf()
+    var returnValue: Int? = null
 
     fun addVariable(identifier: TerminalNode) {
         when (variables[identifier.text]) {
@@ -26,7 +27,7 @@ class MyScope(private val outerScope: MyScope? = null) {
     fun getVariable(identifier: TerminalNode): Int? {
         return variables[identifier.text]
             ?: outerScope?.getVariable(identifier)
-            ?: throw InterpretationException(identifier.symbol.line, "No such variable in corrent scope")
+            ?: throw InterpretationException(identifier.symbol.line, "No such variable in current scope")
     }
 
     fun addFunction(identifier: TerminalNode, function: MyFunction) {

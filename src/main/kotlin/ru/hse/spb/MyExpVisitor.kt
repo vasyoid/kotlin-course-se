@@ -14,7 +14,7 @@ class MyExpVisitor(private var scope: MyScope) : ExpBaseVisitor<Int?>() {
                 ctx.blockWithBraces()
             )
         )
-        return DEFAULT_STATEMENT_VALUE
+        return null
     }
 
     override fun visitFunctionCall(ctx: ExpParser.FunctionCallContext): Int? {
@@ -33,32 +33,35 @@ class MyExpVisitor(private var scope: MyScope) : ExpBaseVisitor<Int?>() {
     override fun visitVariable(ctx: ExpParser.VariableContext): Int? {
         scope.addVariable(ctx.IDENTIFIER())
         ctx.expression()?.let { scope.setVariable(ctx.IDENTIFIER(), visit(it)) }
-        return DEFAULT_STATEMENT_VALUE
+        return null
     }
 
     override fun visitAssignment(ctx: ExpParser.AssignmentContext): Int? {
         scope.setVariable(ctx.IDENTIFIER(), visit(ctx.expression()))
-        return DEFAULT_STATEMENT_VALUE
+        return null
     }
 
     override fun visitReturnStatement(ctx: ExpParser.ReturnStatementContext): Int? {
-        return visit(ctx.expression())
+        scope.returnValue = visit(ctx.expression())
+        return null
     }
 
     override fun visitBlock(ctx: ExpParser.BlockContext): Int? {
         for (statement in ctx.statement()) {
-            val result = visit(statement)
-            if (statement.returnStatement() != null) {
-                return result
+            visit(statement)
+            if (scope.returnValue != null) {
+                return null
             }
         }
-        return DEFAULT_STATEMENT_VALUE
+        return null
     }
 
     override fun visitBlockWithBraces(ctx: ExpParser.BlockWithBracesContext): Int? {
         scope = MyScope(scope)
-        val result = visit(ctx.block())
+        visit(ctx.block())
+        val result = scope.returnValue
         scope = scope.getOuterScope()
+        scope.returnValue = result
         return result
     }
 
@@ -69,15 +72,14 @@ class MyExpVisitor(private var scope: MyScope) : ExpBaseVisitor<Int?>() {
         if (ctx.blockWithBraces().size > 1) {
             return visit(ctx.blockWithBraces(1))
         }
-        return DEFAULT_STATEMENT_VALUE
+        return null
     }
 
     override fun visitWhileBlock(ctx: ExpParser.WhileBlockContext): Int? {
-        var result : Int? = DEFAULT_STATEMENT_VALUE
-        while (visit(ctx.expression()) == 1) {
-            result = visit(ctx.blockWithBraces())
+        while (visit(ctx.expression()) == 1 && scope.returnValue == null) {
+            visit(ctx.blockWithBraces())
         }
-        return result
+        return null
     }
 
     override fun visitFile(ctx: ExpParser.FileContext): Int? {

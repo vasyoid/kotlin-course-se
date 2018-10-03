@@ -22,6 +22,6 @@ class MyFunction(
                 }
             }
         }
-        return MyExpVisitor(executionScope).visit(body)
+        return MyExpVisitor(executionScope).visit(body) ?: DEFAULT_STATEMENT_VALUE
     }
 }

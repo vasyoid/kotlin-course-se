@@ -73,10 +73,6 @@ LITERAL
     : ([1-9] [0-9]*) | '0'
     ;
 
-COMMENT
-    : '//' ~[\r\n] -> skip
-    ;
-
-WHITESPACE
-    : (' ' | '\t' | '\r'| '\n') -> skip
+SKIPPED
+    : (' ' | '\t' | '\r'| '\n' | '//' .*? (('\r')?'\n' | EOF)) -> skip
     ;
