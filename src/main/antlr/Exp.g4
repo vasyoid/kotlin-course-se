@@ -44,6 +44,10 @@ returnStatement
     : 'return' expression
     ;
 
+expressionWithBraces
+    : '(' expression ')'
+    ;
+
 expression
     : functionCall
     | larg = expression op = ('*' | '/' | '%') rarg = expression
@@ -54,7 +58,7 @@ expression
     | larg = expression op = '||' rarg = expression
     | IDENTIFIER
     | LITERAL
-    | '(' expression ')'
+    | expressionWithBraces
     ;
 
 functionCall

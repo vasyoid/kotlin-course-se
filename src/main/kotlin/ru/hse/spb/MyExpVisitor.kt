@@ -3,7 +3,7 @@ package ru.hse.spb
 import ru.hse.spb.parser.ExpBaseVisitor
 import ru.hse.spb.parser.ExpParser
 
-class MyExpVisitor(private var scope: MyScope) : ExpBaseVisitor<Int?>() {
+class MyExpVisitor(private var scope: MyScope = MyScope()) : ExpBaseVisitor<Int?>() {
 
     override fun visitFunction(ctx: ExpParser.FunctionContext): Int? {
         scope.addFunction(
@@ -50,7 +50,7 @@ class MyExpVisitor(private var scope: MyScope) : ExpBaseVisitor<Int?>() {
         for (statement in ctx.statement()) {
             visit(statement)
             if (scope.returnValue != null) {
-                return null
+                return scope.returnValue
             }
         }
         return null
@@ -121,6 +121,10 @@ class MyExpVisitor(private var scope: MyScope) : ExpBaseVisitor<Int?>() {
             "||" -> (larg.toBoolean() || rarg.toBoolean()).toInt()
             else -> throw InterpretationException(ctx.op.line, "Incorrect binary operation")
         }
+    }
+
+    override fun visitExpressionWithBraces(ctx: ExpParser.ExpressionWithBracesContext): Int? {
+        return visit(ctx.expression())
     }
 
     private fun Boolean.toInt() = if (this) 1 else 0

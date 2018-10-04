@@ -14,5 +14,5 @@ fun main(args: Array<String>) {
     }
     val lexer = ExpLexer(CharStreams.fromFileName(args[0]))
     val parser = ExpParser(BufferedTokenStream(lexer))
-    MyExpVisitor(MyScope()).visit(parser.file())
+    MyExpVisitor().visit(parser.file())
 }
