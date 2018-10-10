@@ -1,5 +1,6 @@
 package ru.hse.spb
 
+import java.io.ByteArrayOutputStream
 import java.io.PrintWriter
 
 @DslMarker
@@ -101,7 +102,13 @@ open class Document : Tag("document") {
 
     fun usePackage(param: String, vararg params: String) = initHeader(UsePackage(param, *params)) { }
 
-    fun print(writer: PrintWriter) = render(writer, "")
+    fun print(): String {
+        val os = ByteArrayOutputStream()
+        val writer = PrintWriter(os)
+        render(writer, "")
+        writer.flush()
+        return os.toString()
+    }
 }
 
 class TextElement(private val text: String) : Element {
