@@ -12,6 +12,7 @@ interface Element {
 
 @TexCommandMarker
 abstract class Environment : Element {
+
     protected val children: MutableList<Element> = mutableListOf()
 
     protected fun <T : Element> initElement(element: T, init: T.() -> Unit): T {
@@ -131,14 +132,12 @@ class Math : Environment() {
 class Frame(title: String, vararg params: Pair<String, String>) : Tag("frame", title, *params)
 
 class TagWithItems(name: String) : Tag(name) {
-    fun item(label: String = "", init: TagWithItems.() -> Unit): Item {
-        val item = if (label.isNotEmpty()) {
-            initElement(Item(label)) { }
+    fun item(label: String = "", init: Item.() -> Unit): Item {
+        return if (label.isNotEmpty()) {
+            initElement(Item(label), init)
         } else {
-            initElement(Item()) { }
+            initElement(Item(), init)
         }
-        this.init()
-        return item
     }
 }
 
@@ -146,7 +145,21 @@ class CustomTag(name: String, param: String, vararg params: Pair<String, String>
 
 class Align(name: String) : Tag(name)
 
-class Item(vararg label: String) : Command("item", params = *label)
+class Item(vararg label: String) : Command("item", params = *label) {
+
+    private val children: MutableList<TextElement> = mutableListOf()
+
+    operator fun String.unaryPlus() {
+        children.add(TextElement(this))
+    }
+
+    override fun render(writer: PrintWriter, indent: String) {
+        super.render(writer, indent)
+        for (child in children) {
+            child.render(writer, indent)
+        }
+    }
+}
 
 class DocumentClass(className: String) : Command("documentclass", className)
 
