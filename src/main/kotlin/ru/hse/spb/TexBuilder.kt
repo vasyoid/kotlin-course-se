@@ -1,12 +1,12 @@
 package ru.hse.spb
 
-import java.io.PrintStream
+import java.io.PrintWriter
 
 @DslMarker
 annotation class TexCommandMarker
 
 interface Element {
-    fun render(writer: PrintStream, indent: String)
+    fun render(writer: PrintWriter, indent: String)
 }
 
 @TexCommandMarker
@@ -28,7 +28,7 @@ abstract class Tag(private val name: String,
                    private val param: String = "",
                    private vararg val params: Pair<String, String>) : Environment() {
 
-    override fun render(writer: PrintStream, indent: String) {
+    override fun render(writer: PrintWriter, indent: String) {
         writer.print("$indent\\begin{$name}")
         if (params.isNotEmpty()) {
             writer.print(params.joinToString (", ", "[", "]") { "${it.first}=${it.second}" })
@@ -68,7 +68,7 @@ abstract class Command(
     private val param: String = "",
     private vararg val params: String) : Element {
 
-    override fun render(writer: PrintStream, indent: String) {
+    override fun render(writer: PrintWriter, indent: String) {
         writer.print("$indent\\$name")
         if (params.isNotEmpty()) {
             writer.print(params.joinToString(", ", "[", "]"))
@@ -90,7 +90,7 @@ open class Document : Tag("document") {
         return element
     }
 
-    override fun render(writer: PrintStream, indent: String) {
+    override fun render(writer: PrintWriter, indent: String) {
         for (header in headers) {
             header.render(writer, indent)
         }
@@ -101,18 +101,18 @@ open class Document : Tag("document") {
 
     fun usePackage(param: String, vararg params: String) = initHeader(UsePackage(param, *params)) { }
 
-    fun print(writer: PrintStream) = render(writer, "")
+    fun print(writer: PrintWriter) = render(writer, "")
 }
 
 class TextElement(private val text: String) : Element {
-    override fun render(writer: PrintStream, indent: String) {
+    override fun render(writer: PrintWriter, indent: String) {
         writer.println(text.trimMargin().replace(Regex("^|\\n")) { "${it.value}$indent"})
     }
 }
 
 class Math : Environment() {
 
-    override fun render(writer: PrintStream, indent: String) {
+    override fun render(writer: PrintWriter, indent: String) {
         writer.println("$indent$$")
         for (child in children) {
             child.render(writer, "$indent  ")

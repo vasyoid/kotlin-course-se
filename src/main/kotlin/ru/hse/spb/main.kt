@@ -35,5 +35,5 @@ fun main(args: Array<String>) {
         center {
             +"center"
         }
-    }.print(System.out)
+    }
 }
