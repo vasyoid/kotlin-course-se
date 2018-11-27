@@ -13,16 +13,20 @@ interface Element {
 @TexCommandMarker
 abstract class Environment : Element {
 
+    companion object {
+        const val SINGLE_INDENT = "  "
+    }
+
     protected val children: MutableList<Element> = mutableListOf()
 
     protected fun <T : Element> initElement(element: T, init: T.() -> Unit): T {
         element.init()
-        children.add(element)
+        children += element
         return element
     }
 
     operator fun String.unaryPlus() {
-        children.add(TextElement(this))
+        children += TextElement(this)
     }
 }
 
@@ -40,7 +44,7 @@ abstract class Tag(private val name: String,
         }
         writer.println()
         for (child in children) {
-            child.render(writer, "$indent  ")
+            child.render(writer, indent + SINGLE_INDENT)
         }
         writer.println("$indent\\end{$name}")
     }
@@ -88,7 +92,7 @@ open class Document : Tag("document") {
 
     private fun <T : Command> initHeader(element: T, init: T.() -> Unit): T {
         element.init()
-        headers.add(element)
+        headers += element
         return element
     }
 
@@ -120,12 +124,16 @@ class TextElement(private val text: String) : Element {
 
 class Math : Environment() {
 
+    companion object {
+        private const val MATH_BOUND = "$$"
+    }
+
     override fun render(writer: PrintWriter, indent: String) {
-        writer.println("$indent$$")
+        writer.println(indent + MATH_BOUND)
         for (child in children) {
-            child.render(writer, "$indent  ")
+            child.render(writer, indent + SINGLE_INDENT)
         }
-        writer.println("$indent$$")
+        writer.println(indent + MATH_BOUND)
     }
 }
 
@@ -150,7 +158,7 @@ class Item(vararg label: String) : Command("item", params = *label) {
     private val children: MutableList<TextElement> = mutableListOf()
 
     operator fun String.unaryPlus() {
-        children.add(TextElement(this))
+        children += TextElement(this)
     }
 
     override fun render(writer: PrintWriter, indent: String) {
@@ -166,7 +174,5 @@ class DocumentClass(className: String) : Command("documentclass", className)
 class UsePackage(packageName: String, vararg params: String) : Command("usepackage", packageName, *params)
 
 fun document(init: Document.() -> Unit): Document {
-    val document = Document()
-    document.init()
-    return document
+    return Document().apply(init)
 }
